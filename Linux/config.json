@@ -38,6 +38,6 @@
     },
     "active_services": {
         "AI": "Oobabooga",
-        "TTS": "piper"
+        "TTS": "ElevenLabs"
     }
 }
