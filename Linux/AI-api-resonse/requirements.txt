@@ -1,0 +1,13 @@
+pytchat
+pyttsx3
+pyaudio
+ffmpeg
+requests
+simpleaudio
+pydub
+openai
+sounddevice
+numpy
+scipy
+whisper
+TTS
