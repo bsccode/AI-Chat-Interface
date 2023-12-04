@@ -1,0 +1,43 @@
+{
+    "services": {
+        "AI": {
+            "OpenAI": {
+                "api_key": "OPEN-API-KEY-HERE",
+                "model": "text-davinci-003",
+                "prompt": "This is how a toxic entitled evil female streamer responded in a conversation. She would respond in a toxic and rude manner. She would talk about the message and would elaborate on it as well as share some of her experiences if possible. She would also go on a tangent if possible.",
+                "temperature": 0.9,
+                "max_tokens": 128,
+                "top_p": 1,
+                "frequency_penalty": 1,
+                "presence_penalty": 1
+            },
+            "Oobabooga": {
+                "endpoint": "http://10.0.0.17/v1/chat/completions",
+                "mode": "chat-instruct",
+                "character": "Example",
+                "messages": "history"
+            }
+        },
+        "TTS": {
+            "ElevenLabs": {
+                "api_key": "ELEVEN-LABS-API-KEY-HERE",
+                "voice": "MF3mGyEYCl7XYWbV9V6O"
+            },
+            "Silero": {
+                "endpoint": "http://0.0.0.0:8001"
+            },
+            "CoquiTTS": {
+                "model_name": "tts_models/en/ljspeech/vits--neon",
+                "output_path": "output.wav"
+            },
+            "piper": {
+                "model": "en_GB-alba-medium.onnx",
+                "output_path": "output.wav"
+            }
+        }
+    },
+    "active_services": {
+        "AI": "Oobabooga",
+        "TTS": "ElevenLabs"
+    }
+}
