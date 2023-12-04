@@ -1,7 +1,7 @@
 # Voice-Interactive Chat Application
 
 ## Description
-This project is a voice-interactive chat application built in Python. It utilizes OpenAI's Whisper model for audio transcription and PyAudio for audio recording and playback. The application allows users to interact with a chatbot either through text input or voice commands. The GUI is built using Tkinter, providing a user-friendly interface for interaction.
+This project is a voice-interactive chat application built in Python. It utilizes OpenAI's Whisper model for audio transcription and PyAudio for audio recording and playback. The application allows users to interact with a chatbot either through text input or voice commands. The GUI is built using Tkinter, providing a user-friendly interface for interaction. The current back end is set up and designed for use with oobabooga's text-generation-webui and the text to speech is using Piper-TTS. It is currently set for Open-AI API format.
 
 ## Features
 - Text and voice input modes.
