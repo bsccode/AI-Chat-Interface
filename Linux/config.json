@@ -12,16 +12,16 @@
                 "presence_penalty": 1
             },
             "Oobabooga": {
-                "endpoint": "Ooobabooga-Endpoint",
+                "endpoint": "http://10.0.0.12:5000/v1/chat/completions",
                 "mode": "chat-instruct",
                 "character": "Example",
                 "messages": "history"
             },
             "Ollama": {
                 "endpoint": "http://10.0.0.12:8000/v1/chat/completions",
-                "mode": "chat-instruct",
-                "character": "Example",
-                "messages": "history"
+                "mode": "chat",
+                "messages": "history",
+                "prompt": "This is how a toxic entitled evil female streamer responded in a conversation. She would respond in a toxic and rude manner. She would talk about the message and would elaborate on it as well as share some of her experiences if possible. She would also go on a tangent if possible."
             }
         },
         "TTS": {

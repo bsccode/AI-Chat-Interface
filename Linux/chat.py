@@ -92,21 +92,28 @@ class OobaboogaAI(AIBase):
 class Ollama(AIBase):
     def __init__(self, config):
         self.url = config["endpoint"]
-        self.mode = config.get("mode", "chat")  # Default to "chat" if not specified in config
-        self.character = config.get("character", "Example")  # Default character if not specified
+        self.mode = config.get("mode", "chat")
+        self.character = config.get("character", "Example")
+        self.prompt = config["prompt"]
 
-    def generate_response(self, message):
-        history = [{"role": "user", "content": message}]
+
+    def generate_response(self, message, history):
+
+        # Append the new user message to the existing chat history
+        history.append({"role": "user", "content": message})
+        
+        # Prepare the data to be sent to the server
         data = {
             "mode": self.mode,
-            "character": self.character,
+            "prompt": self.prompt,
             "messages": history
         }
+
+        # Send the request to the server and get the response
         response = requests.post(self.url, headers={"Content-Type": "application/json"}, json=data, verify=False)
         assistant_message = response.json()['choices'][0]['message']['content']
-        history.append({"role": "assistant", "content": assistant_message})
-        return assistant_message
 
+        return assistant_message
 class SileroTTS(TTSBase):
     def __init__(self, config):
         self.endpoint = config["endpoint"]
@@ -162,12 +169,33 @@ class PiperTTS(TTSBase):
         wave_obj = sa.WaveObject.from_wave_file(output_file_path)
         play_obj = wave_obj.play()
         play_obj.wait_done()
+        
+class ChatHistoryManager:
+    def __init__(self, file_path):
+        self.file_path = file_path
+
+    def load_chat_history(self):
+        if os.path.exists(self.file_path):
+            with open(self.file_path, 'r') as file:
+                return json.load(file)
+        return []
+
+    def save_chat_history(self, history):
+        with open(self.file_path, 'w') as file:
+            json.dump(history, file, indent=4)
+
 
 class RunGUI:
     def __init__(self):
+
+        self.history_manager = ChatHistoryManager("chat_history.json")  # Initialize ChatHistoryManager
+        self.chat_history = self.history_manager.load_chat_history()  # Load chat history
+
         self.root = tk.Tk()
         self.root.title("Chat Interface")
         self.root.geometry("600x600")
+
+
 
         frame = ttk.Frame(self.root)
         frame.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
@@ -266,12 +294,37 @@ class RunGUI:
         self.record_button["state"] = "normal"
 
     def backend(self):
-        config_path = "config.json"
-        config = self.load_configuration(config_path)
+        # Load the configuration
+        config = self.load_configuration("config.json")
+
+        # Create AI and TTS service instances
         ai_service = create_ai_service(config)
         tts_service = create_tts_service(config)
-        file_path = "transcription.txt"
-        self.process_text_file(file_path, ai_service, tts_service)
+
+        # Load the user message from the file or GUI
+        user_message = self.load_user_message("transcription.txt")
+
+        # Generate the AI response (ensure that generate_response method accepts chat history)
+        assistant_message = ai_service.generate_response(user_message, self.chat_history)
+
+        # Update the GUI with the AI response (if necessary)
+        self.update_transcription_text(assistant_message)
+
+        # Update the chat history
+        self.chat_history.append({"role": "assistant", "content": assistant_message})
+
+        # Save the updated chat history
+        self.history_manager.save_chat_history(self.chat_history)
+
+        # Use TTS service to speak out the assistant's response
+        tts_service.speak(assistant_message)
+
+    def load_user_message(self, file_path):
+        # Implementation to load the user's message from the file or GUI
+        # Example:
+        with open(file_path, 'r') as file:
+            return file.read().strip()
+
 
     def submit_text(self):
         entered_text = self.input_text.get('1.0', tk.END).strip()
@@ -284,7 +337,7 @@ class RunGUI:
 
     def update_transcription_text(self, text):
         self.output_text.config(state=tk.NORMAL)
-        self.output_text.insert(tk.END,"User: " + text + "\n")
+        self.output_text.insert(tk.END,"AI: " + text + "\n")
         self.output_text.config(state=tk.DISABLED)
 
     def process_text_file(self, file_path, ai_service, tts_service):
@@ -311,7 +364,7 @@ def create_ai_service(config):
     elif service_name == "Oobabooga":
         return OobaboogaAI(config["services"]["AI"]["Oobabooga"])
     elif service_name == "Ollama":
-        return OobaboogaAI(config["services"]["AI"]["Ollama"])
+        return Ollama(config["services"]["AI"]["Ollama"])
     # Add additional elif conditions for other AI services as needed
 
 def create_tts_service(config):
@@ -330,8 +383,6 @@ def create_tts_service(config):
 def load_configuration():
     with open("config.json", "r") as json_file:
         return json.load(json_file)
-
-
 
 def record_audio(duration=5, fs=44100):
     """Record audio from the microphone."""
