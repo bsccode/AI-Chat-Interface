@@ -1,7 +1,4 @@
-subprocess
-pyaudio
 wave
-json
 requests
-whisper
-pyaudio
+openai-whisper
+
